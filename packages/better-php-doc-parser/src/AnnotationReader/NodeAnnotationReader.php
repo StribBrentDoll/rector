@@ -11,9 +11,11 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\Php\PhpMethodReflection;
 use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Reflection\ReflectionProvider;
+use Rector\Core\Exception\ShouldNotHappenException;
 use Rector\DoctrineAnnotationGenerated\PhpDocNode\ConstantReferenceIdentifierRestorer;
 use Rector\NodeNameResolver\NodeNameResolver;
 use Rector\NodeTypeResolver\Node\AttributeKey;
@@ -82,12 +84,13 @@ final class NodeAnnotationReader
     public function readClassAnnotation(Class_ $class, string $annotationClassName): ?object
     {
         $classReflection = $this->createClassReflectionFromNode($class);
+        $nativeClassReflection = $classReflection->getNativeReflection();
 
         try {
             // covers cases like https://github.com/rectorphp/rector/issues/3046
 
             /** @var object[] $classAnnotations */
-            $classAnnotations = $this->reader->getClassAnnotations($classReflection);
+            $classAnnotations = $this->reader->getClassAnnotations($nativeClassReflection);
             return $this->matchNextAnnotation($classAnnotations, $annotationClassName, $class);
         } catch (AnnotationException $annotationException) {
             // unable to load
@@ -120,13 +123,23 @@ final class NodeAnnotationReader
         /** @var string $methodName */
         $methodName = $this->nodeNameResolver->getName($classMethod);
 
-        $reflectionMethod = new ReflectionMethod($className, $methodName);
+        $reflectionClass = $this->reflectionProvider->getClass($className);
+        $classMethodScope = $classMethod->getAttribute(AttributeKey::SCOPE);
+        $methodReflection = $reflectionClass->getMethod($methodName, $classMethodScope);
+
+        if (! $methodReflection instanceof PhpMethodReflection) {
+            throw new ShouldNotHappenException();
+        }
+
+        // @see https://github.com/phpstan/phpstan-src/commit/5fad625b7770b9c5beebb19ccc1a493839308fb4
+        $privatesAccessor = new PrivatesAccessor();
+        $nativeMethodReflection = $privatesAccessor->getPrivateProperty($methodReflection, 'reflection');
 
         try {
             // covers cases like https://github.com/rectorphp/rector/issues/3046
 
             /** @var object[] $methodAnnotations */
-            $methodAnnotations = $this->reader->getMethodAnnotations($reflectionMethod);
+            $methodAnnotations = $this->reader->getMethodAnnotations($nativeMethodReflection);
             foreach ($methodAnnotations as $methodAnnotation) {
                 if (! is_a($methodAnnotation, $annotationClassName, true)) {
                     continue;
