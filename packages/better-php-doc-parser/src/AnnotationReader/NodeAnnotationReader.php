@@ -10,6 +10,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Reflection\ReflectionProvider;
@@ -151,14 +152,15 @@ final class NodeAnnotationReader
         return null;
     }
 
-    private function createClassReflectionFromNode(Class_ $class): ReflectionClass
+    private function createClassReflectionFromNode(Class_ $class): ClassReflection
     {
         /** @var string $className */
         $className = $this->nodeNameResolver->getName($class);
 
         // covers cases like https://github.com/rectorphp/rector/issues/3230#issuecomment-683317288
 
-        return new ReflectionClass($className);
+        return $this->reflectionProvider->getClass($className);
+//        return new ReflectionClass($className);
     }
 
     /**
@@ -204,7 +206,8 @@ final class NodeAnnotationReader
 
         try {
             $classReflection = $this->reflectionProvider->getClass($className);
-            return $classReflection->getProperty($propertyName);
+            $propertyScope = $property->getAttribute(AttributeKey::SCOPE);
+            return $classReflection->getProperty($propertyName, $propertyScope);
             // return new ReflectionProperty($className, $propertyName);
         } catch (Throwable $throwable) {
             // in case of PHPUnit property or just-added property
