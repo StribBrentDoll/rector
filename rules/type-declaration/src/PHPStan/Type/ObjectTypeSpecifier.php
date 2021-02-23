@@ -14,7 +14,6 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
-use Rector\NodeTypeResolver\ClassExistenceStaticHelper;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\StaticTypeMapper\ValueObject\Type\AliasedObjectType;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
@@ -189,7 +188,7 @@ final class ObjectTypeSpecifier
         $classNameWithoutLastUsePart = Strings::after($objectType->getClassName(), '\\', 1);
 
         $connectedClassName = $useUse->name->toString() . '\\' . $classNameWithoutLastUsePart;
-        if (!$this->reflectionProvider->hasClass($connectedClassName)) {
+        if (! $this->reflectionProvider->hasClass($connectedClassName)) {
             return null;
         }
 

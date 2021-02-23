@@ -15,7 +15,6 @@ use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use Rector\DoctrineAnnotationGenerated\PhpDocNode\ConstantReferenceIdentifierRestorer;
 use Rector\NodeNameResolver\NodeNameResolver;
-use Rector\NodeTypeResolver\ClassExistenceStaticHelper;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use ReflectionClass;
 use ReflectionMethod;
@@ -43,6 +42,7 @@ final class NodeAnnotationReader
      * @var ConstantReferenceIdentifierRestorer
      */
     private $constantReferenceIdentifierRestorer;
+
     /**
      * @var ReflectionProvider
      */

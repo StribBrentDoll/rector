@@ -22,7 +22,6 @@ use Rector\BetterPhpDocParser\PhpDocManipulator\PhpDocClassRenamer;
 use Rector\CodingStyle\Naming\ClassNaming;
 use Rector\Core\PhpParser\Node\BetterNodeFinder;
 use Rector\NodeNameResolver\NodeNameResolver;
-use Rector\NodeTypeResolver\ClassExistenceStaticHelper;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\NodeTypeResolver\PhpDoc\NodeAnalyzer\DocBlockClassRenamer;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
@@ -343,7 +342,7 @@ final class ClassRenamer
 
     private function isClassAboutToBeDuplicated(string $newName): bool
     {
-        return ClassExistenceStaticHelper::doesClassLikeExist($newName);
+        return $this->reflectionProvider->hasClass($newName);
     }
 
     private function changeNameToFullyQualifiedName(ClassLike $classLike): void

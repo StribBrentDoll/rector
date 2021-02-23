@@ -11,7 +11,6 @@ use PhpParser\Node\NullableType;
 use PhpParser\Node\UnionType;
 use PHPStan\Reflection\ReflectionProvider;
 use Rector\NodeNameResolver\NodeNameResolver;
-use Rector\NodeTypeResolver\ClassExistenceStaticHelper;
 
 final class FullyQualifiedNameMatcher
 {
@@ -30,8 +29,11 @@ final class FullyQualifiedNameMatcher
      */
     private $reflectionProvider;
 
-    public function __construct(NodeNameResolver $nodeNameResolver, NameMatcher $nameMatcher, ReflectionProvider $reflectionProvider)
-    {
+    public function __construct(
+        NodeNameResolver $nodeNameResolver,
+        NameMatcher $nameMatcher,
+        ReflectionProvider $reflectionProvider
+    ) {
         $this->nodeNameResolver = $nodeNameResolver;
         $this->nameMatcher = $nameMatcher;
         $this->reflectionProvider = $reflectionProvider;

@@ -16,7 +16,6 @@ use PHPStan\Type\StaticType;
 use PHPStan\Type\StringType;
 use PHPStan\Type\ThisType;
 use PHPStan\Type\Type;
-use Rector\NodeTypeResolver\ClassExistenceStaticHelper;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\PSR4\Collector\RenamedClassesCollector;
 use Rector\StaticTypeMapper\Contract\PhpParser\PhpParserNodeMapperInterface;
@@ -35,8 +34,10 @@ final class NameNodeMapper implements PhpParserNodeMapperInterface
      */
     private $reflectionProvider;
 
-    public function __construct(RenamedClassesCollector $renamedClassesCollector, ReflectionProvider $reflectionProvider)
-    {
+    public function __construct(
+        RenamedClassesCollector $renamedClassesCollector,
+        ReflectionProvider $reflectionProvider
+    ) {
         $this->renamedClassesCollector = $renamedClassesCollector;
         $this->reflectionProvider = $reflectionProvider;
     }
